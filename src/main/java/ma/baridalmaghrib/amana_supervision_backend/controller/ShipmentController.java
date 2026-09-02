@@ -56,4 +56,18 @@ public class ShipmentController {
                 code, statut, pod, dateDepotFrom, dateDepotTo, dateStatutFrom, dateStatutTo
         );
     }
+
+        // POST /api/shipments/{id}/pod (multipart/form-data avec un champ "file")
+    @PostMapping("/{id}/pod")
+    public ResponseEntity<ShipmentDTO> addPod(
+            @PathVariable Long id,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file
+    ) {
+        try {
+            ShipmentDTO updated = shipmentService.addPod(id, file);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

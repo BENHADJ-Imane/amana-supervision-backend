@@ -17,12 +17,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import ma.baridalmaghrib.amana_supervision_backend.service.FileStorageService;
 
 @Service
 @RequiredArgsConstructor
 public class ShipmentService {
 
     private final ShipmentRepository shipmentRepository;
+        private final FileStorageService fileStorageService;
 
     public List<ShipmentDTO> getFilteredShipments(
             String code, String statut, String pod,
@@ -110,5 +112,17 @@ public class ShipmentService {
                 s.getStatut().name(), s.getDateStatut(), s.isPod(), s.getPodImageUrl(),
                 s.getDateExport(), s.getVille()
         );
+    }
+
+        public ShipmentDTO addPod(Long shipmentId, org.springframework.web.multipart.MultipartFile file) {
+        Shipment shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new RuntimeException("Envoi introuvable avec id " + shipmentId));
+
+        String imageUrl = fileStorageService.store(file);
+        shipment.setPod(true);
+        shipment.setPodImageUrl(imageUrl);
+
+        Shipment saved = shipmentRepository.save(shipment);
+        return toDTO(saved);
     }
 }
